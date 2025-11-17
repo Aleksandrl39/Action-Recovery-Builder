@@ -126,39 +126,13 @@ jobs:
           sudo ln -sf python2 python
         fi
 
-    - name: Create static libfscrypttwrp stub
+    - name: Remove stub and patch fs_mgr directly
       run: |
-        mkdir -p external/fscrypttwrp
-        cat > external/fscrypttwrp/Android.bp << 'EOF'
-        // Static library version
-        cc_library_static {
-        name: "libfscrypttwrp",
-        vendor_available: true,
-        recovery_available: true,
-        stl: "none",
-        srcs: ["stub.cpp"],
-        cflags: ["-Wno-unused-parameter", "-Wno-unused-function"],
-        }
-        // Shared library version (на всякий случай)
-        cc_library_shared {
-        name: "libfscrypttwrp",
-        vendor_available: true,
-        recovery_available: true, 
-        stl: "none",
-        srcs: ["stub.cpp"],
-        cflags: ["-Wno-unused-parameter", "-Wno-unused-function"],
-        }
-        EOF
-        cat > external/fscrypttwrp/stub.cpp << 'EOF'
-        // Empty stub for libfscrypttwrp
-        extern "C" {
-        void fscrypttwrp_init() {}
-        void fscrypttwrp_cleanup() {}
-        int fscrypttwrp_decrypt(const char* input, const char* output) { return 0; }
-        int fscrypttwrp_encrypt(const char* input, const char* output) { return 0; }
-        }
-        EOF
-        echo "Created static libfscrypttwrp stub"
+        cd system/core/fs_mgr
+        grep -r "libfscrypttwrp" . || true
+        sed -i '/"libfscrypttwrp",/d' Android.bp
+        sed -i '/libfscrypttwrp/d' Android.bp
+        echo "Removed stub and patched fs_mgr"
       working-directory: workspace
 
     - name: Building recovery

@@ -126,20 +126,21 @@ jobs:
           sudo ln -sf python2 python
         fi
 
-    - name: Disable fscrypt in source code
+    - name: Completely remove libfscrypttwrp dependency
       run: |
-        cd system/vold
-        cat > KeyUtil.h.patch << 'EOF'
-        --- a/KeyUtil.h
-        +++ b/KeyUtil.h
-        @@ -20,7 +20,9 @@
-        +#if 0
-        +#endif
-        namespace android {
-        namespace vold {
-        EOF
-        patch -p1 < KeyUtil.h.patch || true
-        echo "Disabled fscrypt in source code"
+        echo "=== Searching for libfscrypttwrp references ==="
+        find . -name "Android.bp" -type f | xargs grep -l "libfscrypttwrp" | head -20
+        cd system/core/fs_mgr
+        echo "=== Patching Android.bp ==="
+        sed -i '/"libfscrypttwrp",/d' Android.bp
+        sed -i '/libfscrypttwrp/d' Android.bp
+        cd ../vold
+        if [ -f Android.bp ]; then
+        echo "=== Patching system/vold/Android.bp ==="
+        sed -i '/"libfscrypttwrp",/d' Android.bp
+        sed -i '/libfscrypttwrp/d' Android.bp
+        fi
+        echo "Removed all libfscrypttwrp dependencies"
       working-directory: workspace
 
     - name: Building recovery

@@ -147,11 +147,11 @@ jobs:
     - name: Building recovery
       run: |
         export ALLOW_MISSING_DEPENDENCIES=true
-        export ALLOW_MISSING_DEPENDENCIES=true
         export SOONG_ALLOW_MISSING_DEPENDENCIES=true
         export BUILD_BROKEN_MISSING_REQUIRED_MODULES=true
         . build/envsetup.sh
         lunch ${{ inputs.DEVICE_MAKEFILE }}-eng
+        make -j$(nproc --all) -k 0 recoveryimage || true
         mka $(tr -d _ <<< ${{ inputs.BUILD_TARGET }})image
       working-directory: workspace
 

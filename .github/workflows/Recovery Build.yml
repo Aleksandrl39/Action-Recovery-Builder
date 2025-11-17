@@ -139,17 +139,14 @@ jobs:
         cflags: ["-Wno-unused-parameter"],
         }
         EOF
-        
         cat > external/fscrypttwrp/stub.cpp << 'EOF'
         // Empty stub for libfscrypttwrp
-    
         extern "C" {
         void fscrypttwrp_stub() {
             printf("libfscrypttwrp stub\\n");
         }
         }
         EOF
-    
         echo "Created libfscrypttwrp stub"
       working-directory: workspace
 

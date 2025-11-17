@@ -227,6 +227,33 @@ jobs:
         cd /usr/bin
         sudo ln -sf python2 python
 
+    - name: Create libfscrypttwrp stub
+      run: |
+        mkdir -p external/fscrypttwrp
+        cat > external/fscrypttwrp/Android.bp << 'EOF'
+        cc_library_shared {
+        name: "libfscrypttwrp",
+        vendor_available: true,
+        recovery_available: true,
+        stl: "none",
+        srcs: ["stub.cpp"],
+        cflags: ["-Wno-unused-parameter"],
+        }
+        EOF
+        
+        cat > external/fscrypttwrp/stub.cpp << 'EOF'
+        // Empty stub for libfscrypttwrp
+    
+        extern "C" {
+        void fscrypttwrp_stub() {
+            printf("libfscrypttwrp stub\\n");
+        }
+        }
+        EOF
+    
+        echo "Created libfscrypttwrp stub"
+      working-directory: workspace
+
     - name: Building recovery (AOSP)
       if: ${{ steps.buildtree.outputs.value == 'aosp' }} 
       run: |

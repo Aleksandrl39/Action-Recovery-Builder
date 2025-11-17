@@ -126,13 +126,20 @@ jobs:
           sudo ln -sf python2 python
         fi
 
-    - name: Remove stub and patch fs_mgr directly
+    - name: Disable fscrypt in source code
       run: |
-        cd system/core/fs_mgr
-        grep -r "libfscrypttwrp" . || true
-        sed -i '/"libfscrypttwrp",/d' Android.bp
-        sed -i '/libfscrypttwrp/d' Android.bp
-        echo "Removed stub and patched fs_mgr"
+        cd system/vold
+        cat > KeyUtil.h.patch << 'EOF'
+        --- a/KeyUtil.h
+        +++ b/KeyUtil.h
+        @@ -20,7 +20,9 @@
+        +#if 0
+        +#endif
+        namespace android {
+        namespace vold {
+        EOF
+        patch -p1 < KeyUtil.h.patch || true
+        echo "Disabled fscrypt in source code"
       working-directory: workspace
 
     - name: Building recovery

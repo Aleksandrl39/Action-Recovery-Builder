@@ -10,19 +10,19 @@ on:
       DEVICE_TREE_URL:
         description: Device Tree URL
         required: true
-        default: https://github.com/SHRP-Devices/device_samsung_d2x
+        default: https://github.com/Aleksandrl39/Infinix-X663_device_tree_nova_origin
       DEVICE_TREE_BRANCH:
         description: Device Tree Branch
         required: true
-        default: android-9.0
+        default: main
       DEVICE_PATH:
         description: Path the device tree should be synced to, relative to source root
         required: true
-        default: device/samsung/d2x
+        default: device/Infinix/X663
       DEVICE_MAKEFILE:
         description: 'Name of device-specific makefile from tree (format: <PREFIX>_<DEVICE_NAME>)'
         required: true
-        default: omni_d2x
+        default: X663
       BUILD_TARGET:
         type: choice
         description: Partition containing recovery ramdisk
@@ -31,12 +31,12 @@ on:
         - recovery
         - vendor_boot
         required: true
-        default: recovery
+        default: boot
 
 jobs:
   build:
     if: github.event.repository.owner.id == github.event.sender.id
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     # You can use either of the ubuntu-20.04 or ubuntu-22.04 runner
     steps:
     - name: Display Run Parameters

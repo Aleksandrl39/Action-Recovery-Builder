@@ -126,26 +126,30 @@ jobs:
           sudo ln -sf python2 python
         fi
 
-    - name: Completely remove libfscrypttwrp dependency
+    - name: Create empty libfscrypttwrp
       run: |
-        echo "=== Searching for libfscrypttwrp references ==="
-        find . -name "Android.bp" -type f | xargs grep -l "libfscrypttwrp" | head -20
-        cd system/core/fs_mgr
-        echo "=== Patching Android.bp ==="
-        sed -i '/"libfscrypttwrp",/d' Android.bp
-        sed -i '/libfscrypttwrp/d' Android.bp
-        cd ../vold
-        if [ -f Android.bp ]; then
-        echo "=== Patching system/vold/Android.bp ==="
-        sed -i '/"libfscrypttwrp",/d' Android.bp
-        sed -i '/libfscrypttwrp/d' Android.bp
-        fi
-        echo "Removed all libfscrypttwrp dependencies"
+        rm -rf external/fscrypttwrp
+        mkdir -p external/fscrypttwrp
+        cat > external/fscrypttwrp/Android.bp << 'EOF'
+        cc_library {
+        name: "libfscrypttwrp",
+        recovery_available: true,
+        vendor_available: true,
+        stub: {
+            symbol_file: "libfscrypttwrp.map",
+        },
+        }
+        EOF
+        echo "LIBFSCRYPTTWRP_1.0 {};" > external/fscrypttwrp/libfscrypttwrp.map
+        echo "Created empty libfscrypttwrp stub"
       working-directory: workspace
-
+  
     - name: Building recovery
       run: |
         export ALLOW_MISSING_DEPENDENCIES=true
+        export ALLOW_MISSING_DEPENDENCIES=true
+        export SOONG_ALLOW_MISSING_DEPENDENCIES=true
+        export BUILD_BROKEN_MISSING_REQUIRED_MODULES=true
         . build/envsetup.sh
         lunch ${{ inputs.DEVICE_MAKEFILE }}-eng
         mka $(tr -d _ <<< ${{ inputs.BUILD_TARGET }})image
